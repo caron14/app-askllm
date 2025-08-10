@@ -98,10 +98,11 @@
 | AWS/GCP | 📋 TODO | Requires GPU instances |
 | Colab | ✅ Possible | Notebook adaptation needed |
 
+
 ## 📈 Project Statistics
 - Python files: 12
 - Test files: 4
-- Total lines of code: 1,786
+- Total lines of code: 1,787
 - Last automated update: 2025-08-10
 
 ## 📝 Notes for Contributors
@@ -111,12 +112,9 @@
 - Keep performance benchmarks current
 - Test demo version before cloud deployment
 
-## 📈 Project Statistics
-- Total Python files: 11
-- Test coverage: >80%
-- Dependencies: 16 core packages
-- Supported models: 2 (embeddings) + 1 (judge)
-- Git commits: 2
 
----
-*This document is automatically updated via GitHub Actions on PR merge*
+## 📈 Project Statistics
+- Python files: 12
+- Test files: 4
+- Total lines of code: 1,787
+- Last automated update: 2025-08-10
