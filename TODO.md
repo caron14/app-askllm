@@ -1,11 +1,11 @@
 # TODO.md - Living Development Document
 
-> Last Updated: 2025-08-10
+> Last Updated: 2025-01-10
 > Auto-updated on each PR merge
 
 ## 🚨 Current Blockers
 - **Streamlit Cloud Deployment**: Full version incompatible due to 1GB RAM limit
-  - Mitigation: Created lightweight demo version (app_cloud.py)
+  - Mitigation: Created lightweight demo version (app_cloud.py) ✅
 
 ## ⚠️ Risk Items
 1. **Model Memory Requirements**: Qwen2.5-3B requires ~6GB VRAM minimum
@@ -21,6 +21,7 @@
 ## 🔄 In Progress
 - [ ] Model quantization for reduced memory usage
 - [ ] Docker containerization for easier deployment
+- [ ] Integration tests for all three Streamlit apps
 
 ## 📋 Next Steps
 
@@ -44,6 +45,9 @@
 - [ ] Implement A/B testing framework
 
 ## ✅ Recently Completed
+- [x] Pre-analysis Streamlit app for visual similarity analysis (2025-01-10)
+- [x] CLAUDE.md for AI assistant guidance (2025-01-10)
+- [x] Fixed Pydantic v2 and dependency compatibility (2025-01-10)
 - [x] Batch processing auto-resume with run ID tracking (2025-01-10)
 - [x] Living TODO.md with auto-update scripts (2025-01-10)
 - [x] Git version control initialization (2025-01-10)
@@ -56,7 +60,7 @@
 - [x] Safety compliance for eval-only data (2025-01-10)
 
 ## 🧪 Test Status
-❌ Failing (Last checked: 2025-08-10)
+⚠️ Not tested (Last checked: 2025-01-10)
 
 ## 🐛 Known Issues
 1. **Streamlit UMAP tab**: May be slow with >10k points
@@ -72,6 +76,9 @@
 - Integration with MLflow/Weights & Biases
 - Custom embedding model training
 - Active learning for judge improvement
+- Real HLE dataset integration when available
+- Advanced visualization techniques (t-SNE, PCA)
+- Batch analysis for multiple queries
 
 ## 📊 Performance Benchmarks
 | Operation | Items | Time | Hardware |
@@ -82,6 +89,7 @@
 | UMAP Prep | 5000 | ~1 min | CPU |
 | Demo App Load | - | ~5 sec | Cloud |
 | Auto-Resume | 100 | instant | Any |
+| Analysis App | 500 | ~10 sec | CPU |
 
 ## 🔗 Dependencies to Watch
 - `transformers`: Check for Qwen model updates
@@ -93,18 +101,17 @@
 | Platform | Status | Notes |
 |----------|--------|-------|
 | Local | ✅ Ready | Full features with GPU support |
-| Streamlit Cloud | ⚠️ Demo only | Use app_cloud.py |
+| Streamlit Cloud | ⚠️ Demo only | Use app_cloud.py or app_analysis.py |
 | Docker | 🔄 Planned | Containerization in progress |
 | AWS/GCP | 📋 TODO | Requires GPU instances |
 | Colab | ✅ Possible | Notebook adaptation needed |
 
-
-
 ## 📈 Project Statistics
-- Python files: 12
-- Test files: 4
-- Total lines of code: 1,787
-- Last automated update: 2025-08-10
+- Python files: 14
+- Test files: 3
+- Total lines of code: ~2,500
+- Streamlit apps: 3 (main, demo, analysis)
+- Last automated update: 2025-01-10
 
 ## 📝 Notes for Contributors
 - Always update this file when completing tasks
@@ -112,11 +119,3 @@
 - Update risk items with mitigation status
 - Keep performance benchmarks current
 - Test demo version before cloud deployment
-
-
-
-## 📈 Project Statistics
-- Python files: 12
-- Test files: 4
-- Total lines of code: 1,787
-- Last automated update: 2025-08-10
