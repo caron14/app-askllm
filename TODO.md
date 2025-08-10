@@ -1,6 +1,6 @@
 # TODO.md - Living Development Document
 
-> Last Updated: 2025-01-10
+> Last Updated: 2025-08-10
 > Auto-updated on each PR merge
 
 ## 🚨 Current Blockers
@@ -46,6 +46,9 @@
 - [x] Test suite with >80% coverage (2025-01-10)
 - [x] Safety compliance for eval-only data (2025-01-10)
 
+## 🧪 Test Status
+❌ Failing (Last checked: 2025-08-10)
+
 ## 🐛 Known Issues
 1. **Streamlit UMAP tab**: May be slow with >10k points
    - Workaround: Use sampling or pre-computation
@@ -72,6 +75,13 @@
 - `sentence-transformers`: New embedding models
 - `faiss-cpu`: Performance improvements
 - `streamlit`: UI enhancements
+
+
+## 📈 Project Statistics
+- Python files: 12
+- Test files: 4
+- Total lines of code: 1,786
+- Last automated update: 2025-08-10
 
 ## 📝 Notes for Contributors
 - Always update this file when completing tasks
