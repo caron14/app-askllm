@@ -19,7 +19,6 @@
    - Mitigation: Created demo version with mock data ✅
 
 ## 🔄 In Progress
-- [ ] Streamlit Web App Japanese localization (日本語化)
 - [ ] Model quantization for reduced memory usage
 - [ ] Docker containerization for easier deployment
 - [ ] Integration tests for all three Streamlit apps
@@ -27,7 +26,6 @@
 ## 📋 Next Steps
 
 ### High Priority
-- [ ] Complete Japanese localization for all Streamlit apps (app_streamlit.py, app_cloud.py, app_analysis.py)
 - [ ] Add model quantization support (8-bit, 4-bit)
 - [ ] Implement distributed batch processing
 - [ ] Add progress bars to CLI operations
@@ -47,6 +45,15 @@
 - [ ] Implement A/B testing framework
 
 ## ✅ Recently Completed
+- [x] Unified app_analysis_unified.py for Streamlit Cloud (2025-08-10)
+  - Automatically detects environment (Cloud vs Local)
+  - Uses TF-IDF + PCA for lightweight cloud deployment
+  - Uses Sentence Transformers + UMAP for full local features
+  - Supports both Japanese and English interfaces
+- [x] Japanese/English localization for all Streamlit apps (2025-08-10)
+  - Created i18n.py module for app_streamlit.py
+  - Created i18n_cloud.py for app_cloud.py
+  - Created i18n_analysis.py and app_analysis_bilingual.py
 - [x] Pre-analysis Streamlit app for visual similarity analysis (2025-01-10)
 - [x] CLAUDE.md for AI assistant guidance (2025-01-10)
 - [x] Fixed Pydantic v2 and dependency compatibility (2025-01-10)

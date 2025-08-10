@@ -11,6 +11,7 @@ from pathlib import Path
 import os
 from typing import Optional
 import requests
+from i18n_cloud import t, language_selector
 
 # Cloud-friendly configuration
 CLOUD_CONFIG = {
@@ -21,7 +22,7 @@ CLOUD_CONFIG = {
 }
 
 st.set_page_config(
-    page_title="HLE Quality Screener (Demo)",
+    page_title=t("app_title"),
     page_icon="🔍",
     layout="wide"
 )
@@ -96,41 +97,42 @@ def calculate_quality_score(askllm_score: float, sim_score: float, alpha: float 
     return round(alpha * askllm_score * 100 + (1 - alpha) * sim_score * 100, 1)
 
 def main():
-    st.title("🔍 HLE Quality Screener (Cloud Demo)")
-    st.markdown("""
-    **Demo Version** - This is a lightweight demonstration using mock data and simplified models.
+    # Add language selector in sidebar
+    with st.sidebar:
+        language_selector()
+        st.markdown("---")
     
-    For production use with full models, please run locally.
-    """)
+    st.title(t("main_title"))
+    st.markdown(t("demo_note"))
     
-    st.warning("⚠️ This demo uses mock data and simplified scoring. Results are for demonstration only.")
+    st.warning(t("warning_demo"))
     
-    tabs = st.tabs(["🔎 Search & Score", "📊 About", "⚙️ Configuration"])
+    tabs = st.tabs([t("tab_search"), t("tab_about"), t("tab_config")])
     
     with tabs[0]:
-        st.header("Evaluate Synthetic Questions")
+        st.header(t("evaluate_header"))
         
         col1, col2 = st.columns([2, 1])
         
         with col1:
             query_text = st.text_area(
-                "Enter question text to evaluate:",
+                t("enter_question"),
                 height=100,
-                placeholder="Enter a math problem or any educational question..."
+                placeholder=t("placeholder_question")
             )
             
-            item_id = st.text_input("Item ID (optional)", value="demo_001")
+            item_id = st.text_input(t("item_id"), value="demo_001")
         
         with col2:
-            st.subheader("Parameters")
-            k = st.slider("Number of similar items", 3, 10, 5)
-            alpha = st.slider("Quality weight (α)", 0.0, 1.0, 0.8, 0.1)
+            st.subheader(t("parameters"))
+            k = st.slider(t("num_similar"), 3, 10, 5)
+            alpha = st.slider(t("quality_weight"), 0.0, 1.0, 0.8, 0.1)
         
-        if st.button("🚀 Analyze", type="primary"):
+        if st.button(t("analyze_button"), type="primary"):
             if not query_text:
-                st.error("Please enter question text")
+                st.error(t("error_no_text"))
             else:
-                with st.spinner("Analyzing..."):
+                with st.spinner(t("info_analyzing")):
                     # Mock similarity search
                     references = mock_similarity_search(query_text, k)
                     
@@ -156,13 +158,13 @@ def main():
                 # Display results
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.metric("Quality Score", f"{quality_score:.1f}")
+                    st.metric(t("quality_score"), f"{quality_score:.1f}")
                 with col2:
-                    st.metric("Judge Score", f"{round(askllm_score * 100, 1):.1f}")
+                    st.metric(t("judge_score"), f"{round(askllm_score * 100, 1):.1f}")
                 with col3:
-                    st.metric("Similarity Score", f"{sim_score:.3f}")
+                    st.metric(t("similarity_score"), f"{sim_score:.3f}")
                 
-                st.subheader("📋 Similar Reference Items")
+                st.subheader(t("similar_refs"))
                 ref_df = pd.DataFrame(references)
                 ref_df['similarity'] = ref_df['similarity'].round(3)
                 st.dataframe(
@@ -170,16 +172,16 @@ def main():
                     use_container_width=True
                 )
                 
-                st.subheader("🤖 Judge Analysis")
+                st.subheader(t("judge_analysis"))
                 st.info(judge_result['rationale'])
                 
-                with st.expander("📄 Full Result JSON"):
+                with st.expander(t("full_json")):
                     st.json(result)
         
         # History
         if st.session_state.results:
             st.divider()
-            st.subheader("📜 Analysis History")
+            st.subheader(t("analysis_history"))
             history_df = pd.DataFrame([
                 {
                     'ID': r['item_id'],
@@ -193,56 +195,37 @@ def main():
             st.dataframe(history_df, use_container_width=True)
     
     with tabs[1]:
-        st.header("About This Demo")
+        st.header(t("about_header"))
         
+        st.markdown(t("about_purpose"))
+        st.markdown(t("about_purpose_text"))
+        
+        st.markdown(t("about_how"))
+        st.markdown(t("about_steps"))
+        
+        st.markdown(t("about_formula"))
         st.markdown("""
-        ### 🎯 Purpose
-        This demonstration shows the concept of the HLE Quality Screener system, which evaluates 
-        synthetic dataset items against reference questions using semantic similarity and quality scoring.
-        
-        ### 🔬 How It Works
-        1. **Similarity Search**: Finds the most similar reference questions (using mock data in demo)
-        2. **Quality Assessment**: Evaluates relevance using a judge model (simulated in demo)
-        3. **Composite Scoring**: Combines similarity and judge scores with configurable weights
-        
-        ### 📊 Scoring Formula
         ```
         quality_score = α × judge_score + (1-α) × similarity_score
         ```
-        
-        ### ⚠️ Limitations of Demo
-        - Uses mock data instead of real HLE dataset
-        - Simplified similarity matching (no embeddings)
-        - Mock judge instead of LLM
-        - No persistence or batch processing
-        
-        ### 🚀 Full Version Features
-        The complete local version includes:
-        - Real embeddings with BAAI/bge-m3 or similar models
-        - Qwen2.5-3B LLM judge for quality assessment
-        - FAISS indexing for efficient similarity search
-        - Batch processing with resume capability
-        - UMAP visualizations
-        - Full CLI interface
-        
-        ### 📦 Installation
-        To run the full version locally:
-        ```bash
-        git clone <repo-url>
-        cd hle-screener
-        uv sync
-        uv run python -m hle_screener.cli build-index
-        uv run python -m hle_screener.cli serve
-        ```
         """)
+        
+        st.markdown(t("about_limitations"))
+        st.markdown(t("limitations_list"))
+        
+        st.markdown(t("about_full"))
+        st.markdown(t("full_features"))
+        
+        st.markdown(t("about_install"))
+        st.markdown(t("install_text"))
     
     with tabs[2]:
-        st.header("Configuration")
+        st.header(t("config_header"))
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("Demo Settings")
+            st.subheader(t("demo_settings"))
             st.json({
                 "mode": "demo",
                 "embedding_model": "mock",
@@ -252,7 +235,7 @@ def main():
             })
         
         with col2:
-            st.subheader("Production Settings")
+            st.subheader(t("prod_settings"))
             st.json({
                 "mode": "production",
                 "embedding_model": "BAAI/bge-m3",
@@ -261,19 +244,16 @@ def main():
                 "index": "FAISS"
             })
         
-        st.info("""
-        💡 **Note**: This demo runs entirely in the browser with mock data. 
-        For production use with real models and data, please deploy locally or on a GPU-enabled server.
-        """)
+        st.info(t("note_demo"))
         
-        if st.button("Clear History"):
+        if st.button(t("clear_history")):
             st.session_state.results = []
-            st.success("History cleared!")
+            st.success(t("history_cleared"))
             st.rerun()
 
     # Footer
     st.divider()
-    st.caption("HLE Quality Screener Demo v0.1.0 | ⚠️ DEMO MODE - Not for production use")
+    st.caption(t("footer"))
 
 if __name__ == "__main__":
     main()
