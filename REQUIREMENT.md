@@ -81,6 +81,7 @@ You are Claude Code. Build a production-ready, reproducible repo that implements
 - Persist via Pydantic schema. Set `do_not_train_flag=true` and include canary GUID.
 
 ### Streamlit app
+- **Language**: All UI elements, labels, messages, and instructions must be in Japanese (日本語).
 - **Search**: input (id/text) → HLE top5 table + scores (+ CSV download).
 - **Map**: precomputed UMAP (2D, n_neighbors=15, min_dist=0.1) colored by subject; project query point and highlight top5.
 - **Settings**: model switches, UMAP params, cache control.

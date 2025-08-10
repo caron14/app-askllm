@@ -158,9 +158,41 @@ quality_score = α × askllm_score + (1-α) × (100 × sim_score)
 - `test_pipeline_e2e.py`: Full pipeline integration
 - Mock models used in tests to avoid resource requirements
 
+## Current Development Focus
+
+From TODO.md:
+- Japanese localization for Streamlit apps in progress
+- Model quantization for memory reduction planned
+- Docker containerization for deployment
+- HLE dataset requires authentication (see HLE_ACCESS.md)
+
+## Dataset Management
+```bash
+# Download datasets (GSM8K and HLE/MMLU)
+uv run python scripts/download_datasets.py
+
+# Note: Official HLE is gated - requires Hugging Face authentication
+# See HLE_ACCESS.md for setup instructions
+# Currently using MMLU as proxy when HLE unavailable
+```
+
+## Lint and Type Checking
+When working on code, ask the user for lint/typecheck commands and add them here for future reference.
+
+## Streamlit Cloud Deployment
+```bash
+# For cloud deployment, use lightweight versions:
+# - app_cloud.py (demo with mock data)
+# - app_analysis_lite.py (TF-IDF based, no heavy ML deps)
+
+# Ensure runtime.txt specifies Python 3.11 (not 3.13)
+# Use requirements_lite.txt for minimal dependencies
+```
+
 ## Common Pitfalls to Avoid
 1. Forgetting to build index before scoring operations
 2. Not using eval_only paths for HLE data
-3. Running full version on Streamlit Cloud (use demo version)
+3. Running full version on Streamlit Cloud (use demo/lite versions)
 4. Not checking `.run_state.json` when debugging batch runs
 5. Modifying checkpoint_frequency without considering disk I/O
+6. Using Python 3.13 on Streamlit Cloud (incompatible with pyarrow)

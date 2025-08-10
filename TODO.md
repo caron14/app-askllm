@@ -19,6 +19,7 @@
    - Mitigation: Created demo version with mock data ✅
 
 ## 🔄 In Progress
+- [ ] Streamlit Web App Japanese localization (日本語化)
 - [ ] Model quantization for reduced memory usage
 - [ ] Docker containerization for easier deployment
 - [ ] Integration tests for all three Streamlit apps
@@ -26,6 +27,7 @@
 ## 📋 Next Steps
 
 ### High Priority
+- [ ] Complete Japanese localization for all Streamlit apps (app_streamlit.py, app_cloud.py, app_analysis.py)
 - [ ] Add model quantization support (8-bit, 4-bit)
 - [ ] Implement distributed batch processing
 - [ ] Add progress bars to CLI operations
