@@ -5,6 +5,16 @@ from pathlib import Path
 from typing import List, Tuple, Dict, Any, Optional
 import logging
 
+# Try to import tqdm for progress bars
+try:
+    from tqdm import tqdm
+    HAS_TQDM = True
+except ImportError:
+    HAS_TQDM = False
+    # Fallback dummy tqdm
+    def tqdm(iterable, **kwargs):
+        return iterable
+
 from .schema import HLEItem, RetrievalResult
 from .embed import EmbeddingClient
 from .io import save_embeddings, load_embeddings, save_hle_metadata, load_hle_metadata

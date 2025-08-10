@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Documentation
+docs/
+*.md
+!README.md
+!CLAUDE.md
+!TODO.md
+
+# Data and artifacts (will be mounted as volumes)
+data/hle/*
+data/gsm8k/*
+artifacts/indexes/*
+artifacts/eval_only/*
+artifacts/umap/*
+artifacts/results/*
+
+# Logs
+*.log
+logs/
+
+# Cache (will be mounted as volumes)
+.cache/
+
+# Other
+.env
+.env.*
+!.env.example
+*.bak
+*.tmp
+temp/
+tmp/
+
+# Ray
+ray_results/
+ray_temp/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb

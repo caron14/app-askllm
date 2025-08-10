@@ -1,12 +1,13 @@
 import json
 import torch
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Literal
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import logging
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from .schema import RetrievalResult, AskLLMResponse
 from .utils import ModelCache, format_hle_context
+from .quantization import load_quantized_model, check_quantization_support
 
 logger = logging.getLogger(__name__)
 
@@ -17,23 +18,49 @@ class AskLLMJudge:
         model_id: str = "Qwen/Qwen2.5-3B-Instruct",
         device: Optional[str] = None,
         temperature: float = 0.0,
-        max_new_tokens: int = 64
+        max_new_tokens: int = 64,
+        quantization: Optional[Literal["8bit", "4bit", "none"]] = "none"
     ):
         self.model_id = model_id
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.temperature = temperature
         self.max_new_tokens = max_new_tokens
+        self.quantization = quantization
         self.model = None
         self.tokenizer = None
         self._load_model()
     
     def _load_model(self):
-        logger.info(f"Loading LLM judge model: {self.model_id}")
-        self.model, self.tokenizer = ModelCache.get_or_create(
-            "llm",
-            self.model_id,
-            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
-        )
+        logger.info(f"Loading LLM judge model: {self.model_id} with quantization={self.quantization}")
+        
+        # Check if quantization is supported
+        if self.quantization != "none":
+            support = check_quantization_support()
+            if not support[self.quantization]:
+                logger.warning(f"Quantization {self.quantization} not supported, falling back to none")
+                self.quantization = "none"
+        
+        # Try to get from cache first
+        cache_key = f"llm_{self.quantization}"
+        cached = ModelCache.get(cache_key)
+        
+        if cached:
+            self.model, self.tokenizer = cached
+        else:
+            # Load with quantization if specified
+            if self.quantization != "none":
+                self.model, self.tokenizer = load_quantized_model(
+                    self.model_id,
+                    quantization=self.quantization
+                )
+                ModelCache.set(cache_key, (self.model, self.tokenizer))
+            else:
+                # Use original loading method
+                self.model, self.tokenizer = ModelCache.get_or_create(
+                    "llm",
+                    self.model_id,
+                    torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
+                )
     
     def _create_prompt(self, references: List[RetrievalResult], candidate_text: str) -> str:
         system_prompt = """You are a data quality rater evaluating whether a synthetic question would be useful for improving performance on high-quality evaluation questions.
@@ -151,11 +178,12 @@ Rate the usefulness of this candidate question for improving performance on the 
         }
 
 
-def create_askllm_judge(config: Optional[Dict[str, Any]] = None) -> AskLLMJudge:
+def create_askllm_judge(config: Optional[Dict[str, Any]] = None, quantization: Optional[str] = None) -> AskLLMJudge:
     if config:
         return AskLLMJudge(
             model_id=config.get("judge_model", "Qwen/Qwen2.5-3B-Instruct"),
             temperature=config.get("temperature", 0.0),
-            max_new_tokens=config.get("max_new_tokens", 64)
+            max_new_tokens=config.get("max_new_tokens", 64),
+            quantization=quantization or config.get("quantization", "none")
         )
-    return AskLLMJudge()
+    return AskLLMJudge(quantization=quantization or "none")

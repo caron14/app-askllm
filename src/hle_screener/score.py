@@ -6,6 +6,16 @@ from datetime import datetime
 from pathlib import Path
 import logging
 
+# Try to import tqdm for progress bars
+try:
+    from tqdm import tqdm
+    HAS_TQDM = True
+except ImportError:
+    HAS_TQDM = False
+    # Fallback dummy tqdm
+    def tqdm(iterable, **kwargs):
+        return iterable
+
 from .schema import RetrievalResult, ScoringResult, AskLLMResponse
 from .index import FAISSIndex, retrieve_similar_hle
 from .embed import EmbeddingClient
@@ -162,7 +172,17 @@ def score_batch(
     
     checkpoint_frequency = config.get("checkpoint_frequency", 10)
     
-    for i, item in enumerate(items[start_idx:], start_idx):
+    # Create progress bar
+    progress_bar = tqdm(
+        enumerate(items[start_idx:], start_idx),
+        total=len(items) - start_idx,
+        desc="Scoring items",
+        unit="item",
+        initial=0,
+        disable=not HAS_TQDM
+    )
+    
+    for i, item in progress_bar:
         item_id = item.get("id", f"item_{i}")
         
         if item_id in state.get("completed_items", []):
@@ -170,7 +190,11 @@ def score_batch(
             continue
         
         try:
-            logger.info(f"Processing item {i+1}/{len(items)}: {item_id}")
+            # Update progress bar description
+            if HAS_TQDM:
+                progress_bar.set_description(f"Scoring {item_id}")
+            else:
+                logger.info(f"Processing item {i+1}/{len(items)}: {item_id}")
             
             result = score_single_item(
                 item_id=item_id,

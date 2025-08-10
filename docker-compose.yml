@@ -1,0 +1,159 @@
+version: '3.8'
+
+services:
+  # Main application with GPU support
+  hle-screener:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: hle-screener:latest
+    container_name: hle-screener-main
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./configs:/app/configs
+      - hf-cache:/app/.cache/huggingface
+      - transformers-cache:/app/.cache/transformers
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_TOKEN=${HF_TOKEN}
+      - TRANSFORMERS_OFFLINE=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    command: ["python3", "-m", "streamlit", "run", "src/hle_screener/app_streamlit.py", "--server.port", "8501"]
+
+  # Cloud demo version (no GPU)
+  hle-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: hle-screener:latest
+    container_name: hle-screener-demo
+    ports:
+      - "8502:8502"
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./configs:/app/configs
+    environment:
+      - STREAMLIT_RUNTIME_ENV=cloud
+    restart: unless-stopped
+    command: ["python3", "-m", "streamlit", "run", "app_cloud.py", "--server.port", "8502"]
+
+  # Analysis app
+  hle-analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: hle-screener:latest
+    container_name: hle-screener-analysis
+    ports:
+      - "8503:8503"
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./configs:/app/configs
+    environment:
+      - STREAMLIT_RUNTIME_ENV=cloud
+    restart: unless-stopped
+    command: ["python3", "-m", "streamlit", "run", "app_analysis.py", "--server.port", "8503"]
+
+  # Development environment
+  hle-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: hle-screener:dev
+    container_name: hle-screener-dev
+    ports:
+      - "8504:8501"
+      - "8888:8888"  # Jupyter
+    volumes:
+      - .:/app
+      - hf-cache:/app/.cache/huggingface
+      - transformers-cache:/app/.cache/transformers
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_TOKEN=${HF_TOKEN}
+      - ENVIRONMENT=development
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    command: ["/bin/bash"]
+
+  # Ray cluster head node for distributed processing
+  ray-head:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: hle-screener:latest
+    container_name: ray-head
+    ports:
+      - "8265:8265"  # Ray dashboard
+      - "10001:10001"  # Ray client
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./configs:/app/configs
+      - hf-cache:/app/.cache/huggingface
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: ["ray", "start", "--head", "--dashboard-host", "0.0.0.0"]
+
+  # Ray worker node
+  ray-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: hle-screener:latest
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./configs:/app/configs
+      - hf-cache:/app/.cache/huggingface
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      replicas: 2
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: ["ray", "start", "--address", "ray-head:10001"]
+    depends_on:
+      - ray-head
+
+volumes:
+  hf-cache:
+    driver: local
+  transformers-cache:
+    driver: local

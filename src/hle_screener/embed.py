@@ -12,10 +12,34 @@ logger = logging.getLogger(__name__)
 
 
 class EmbeddingClient:
+    # Supported embedding models with their dimensions
+    SUPPORTED_MODELS = {
+        "BAAI/bge-m3": 1024,
+        "BAAI/bge-large-en-v1.5": 1024,
+        "BAAI/bge-base-en-v1.5": 768,
+        "BAAI/bge-small-en-v1.5": 384,
+        "sentence-transformers/all-MiniLM-L6-v2": 384,
+        "sentence-transformers/all-MiniLM-L12-v2": 384,
+        "sentence-transformers/all-mpnet-base-v2": 768,
+        "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": 384,
+        "sentence-transformers/paraphrase-multilingual-mpnet-base-v2": 768,
+        "intfloat/e5-large-v2": 1024,
+        "intfloat/e5-base-v2": 768,
+        "intfloat/e5-small-v2": 384,
+        "intfloat/multilingual-e5-large": 1024,
+        "thenlper/gte-large": 1024,
+        "thenlper/gte-base": 768,
+        "thenlper/gte-small": 384,
+    }
+    
     def __init__(self, model_id: str = "BAAI/bge-m3", device: Optional[str] = None):
+        if model_id not in self.SUPPORTED_MODELS:
+            logger.warning(f"Model {model_id} not in supported list, using anyway")
+        
         self.model_id = model_id
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = None
+        self.dimension = self.SUPPORTED_MODELS.get(model_id, None)
         self._load_model()
     
     def _load_model(self):
