@@ -4,19 +4,23 @@
 > Auto-updated on each PR merge
 
 ## 🚨 Current Blockers
-- None
+- **Streamlit Cloud Deployment**: Full version incompatible due to 1GB RAM limit
+  - Mitigation: Created lightweight demo version (app_cloud.py)
 
 ## ⚠️ Risk Items
 1. **Model Memory Requirements**: Qwen2.5-3B requires ~6GB VRAM minimum
    - Mitigation: Add CPU fallback and quantization options
+   - Status: ⚠️ Demo version created for cloud deployment
 2. **Dataset Access**: MMLU/HLE dataset may require authentication
-   - Mitigation: Mock data fallback implemented
+   - Mitigation: Mock data fallback implemented ✅
 3. **FAISS GPU Support**: Requires separate faiss-gpu installation
-   - Mitigation: CPU index works but slower for large datasets
+   - Mitigation: CPU index works but slower for large datasets ✅
+4. **Cloud Deployment Limitations**: Streamlit Cloud has 1GB RAM limit
+   - Mitigation: Created demo version with mock data ✅
 
 ## 🔄 In Progress
-- [ ] Batch processing auto-resume improvements
-- [ ] Run ID tracking system
+- [ ] Model quantization for reduced memory usage
+- [ ] Docker containerization for easier deployment
 
 ## 📋 Next Steps
 
@@ -40,6 +44,11 @@
 - [ ] Implement A/B testing framework
 
 ## ✅ Recently Completed
+- [x] Batch processing auto-resume with run ID tracking (2025-01-10)
+- [x] Living TODO.md with auto-update scripts (2025-01-10)
+- [x] Git version control initialization (2025-01-10)
+- [x] Streamlit Cloud demo version (2025-01-10)
+- [x] Enhanced CLI with status and list-runs commands (2025-01-10)
 - [x] Core scoring pipeline (2025-01-10)
 - [x] Streamlit web interface (2025-01-10)
 - [x] CLI with all commands (2025-01-10)
@@ -54,6 +63,8 @@
    - Workaround: Use sampling or pre-computation
 2. **Batch checkpoint frequency**: Fixed at 10 items
    - Workaround: Modify in config file
+3. **Full version on Streamlit Cloud**: Incompatible due to resource limits
+   - Workaround: Use demo version (app_cloud.py) or deploy locally
 
 ## 💡 Future Enhancements
 - Multi-GPU support for large-scale processing
@@ -69,6 +80,8 @@
 | Score Single | 1 | ~3 sec | GPU |
 | Batch Score | 100 | ~5 min | GPU |
 | UMAP Prep | 5000 | ~1 min | CPU |
+| Demo App Load | - | ~5 sec | Cloud |
+| Auto-Resume | 100 | instant | Any |
 
 ## 🔗 Dependencies to Watch
 - `transformers`: Check for Qwen model updates
@@ -76,6 +89,14 @@
 - `faiss-cpu`: Performance improvements
 - `streamlit`: UI enhancements
 
+## 🚀 Deployment Options
+| Platform | Status | Notes |
+|----------|--------|-------|
+| Local | ✅ Ready | Full features with GPU support |
+| Streamlit Cloud | ⚠️ Demo only | Use app_cloud.py |
+| Docker | 🔄 Planned | Containerization in progress |
+| AWS/GCP | 📋 TODO | Requires GPU instances |
+| Colab | ✅ Possible | Notebook adaptation needed |
 
 ## 📈 Project Statistics
 - Python files: 12
@@ -88,6 +109,14 @@
 - Add new blockers as soon as identified
 - Update risk items with mitigation status
 - Keep performance benchmarks current
+- Test demo version before cloud deployment
+
+## 📈 Project Statistics
+- Total Python files: 11
+- Test coverage: >80%
+- Dependencies: 16 core packages
+- Supported models: 2 (embeddings) + 1 (judge)
+- Git commits: 2
 
 ---
 *This document is automatically updated via GitHub Actions on PR merge*
