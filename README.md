@@ -228,10 +228,51 @@ python scripts/update_todo.py
 - 8GB+ RAM
 - 10GB+ disk space for models
 
+## Datasets
+
+This project uses the following datasets:
+
+### GSM8K (Grade School Math 8K)
+- **Source**: [OpenAI GSM8K](https://github.com/openai/grade-school-math)
+- **License**: MIT License
+- **Paper**: Cobbe et al., 2021. "Training Verifiers to Solve Math Word Problems"
+- **Usage**: Synthetic dataset for demonstrating quality screening
+- **Citation**:
+```bibtex
+@article{cobbe2021training,
+  title={Training Verifiers to Solve Math Word Problems},
+  author={Cobbe, Karl and Kosaraju, Vineet and Bavarian, Mohammad and Chen, Mark and Jun, Heewoo and Kaiser, Lukasz and Plappert, Matthias and Tworek, Jerry and Hilton, Jacob and Nakano, Reiichiro and Hesse, Christopher and Schulman, John},
+  journal={arXiv preprint arXiv:2110.14168},
+  year={2021}
+}
+```
+
+### MMLU (Massive Multitask Language Understanding)
+- **Source**: [Hendrycks et al., 2020](https://github.com/hendrycks/test)
+- **License**: MIT License
+- **Paper**: "Measuring Massive Multitask Language Understanding"
+- **Usage**: Used as proxy for HLE (High-Level Evaluation) reference questions
+- **Note**: Using high school subjects (Mathematics, Physics, Chemistry, Biology) for evaluation purposes only
+- **Citation**:
+```bibtex
+@article{hendrycks2021measuring,
+  title={Measuring Massive Multitask Language Understanding},
+  author={Hendrycks, Dan and Burns, Collin and Basart, Steven and Zou, Andy and Mazeika, Mantas and Song, Dawn and Steinhardt, Jacob},
+  journal={Proceedings of the International Conference on Learning Representations (ICLR)},
+  year={2021}
+}
+```
+
+### Data Download
+To download the datasets:
+```bash
+uv run python scripts/download_datasets.py
+```
+
 ## License
 
 [Your License Here]
 
 ## Contributing
 
-See [MANUAL.md](MANUAL.md) for detailed development instructions and [TODO.md](TODO.md) for current development status.# app-askllm
+See [MANUAL.md](MANUAL.md) for detailed development instructions and [TODO.md](TODO.md) for current development status.
