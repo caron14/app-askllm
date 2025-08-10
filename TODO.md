@@ -122,10 +122,11 @@
 
 
 
+
 ## 📈 Project Statistics
-- Python files: 12
+- Python files: 13
 - Test files: 4
-- Total lines of code: 1,787
+- Total lines of code: 2,097
 - Last automated update: 2025-08-10
 
 ## 📝 Notes for Contributors
