@@ -41,6 +41,9 @@ uv run python -m hle_screener.cli serve
 
 # Launch cloud demo version (lightweight, mock data)
 uv run streamlit run app_cloud.py
+
+# Launch analysis-only app (visual similarity analysis)
+uv run streamlit run app_analysis.py
 ```
 
 ### Scoring Operations

@@ -155,7 +155,14 @@ uv run python -m hle_screener.cli prep-umap \
 
 ### Launch Web UI
 ```bash
+# メインアプリ（フル機能版）
 uv run python -m hle_screener.cli serve --port 8501
+
+# デモ版（軽量、Streamlit Cloud対応）
+uv run streamlit run app_cloud.py --server.port 8502
+
+# 事前分析専用アプリ（視覚的分析）
+uv run streamlit run app_analysis.py --server.port 8503
 ```
 
 ## Configuration
