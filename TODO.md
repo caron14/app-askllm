@@ -45,15 +45,19 @@
 - [ ] Implement A/B testing framework
 
 ## ✅ Recently Completed
-- [x] Unified app_analysis_unified.py for Streamlit Cloud (2025-08-10)
+- [x] Repository cleanup and consolidation (2025-08-10)
+  - Unified all analysis apps into single app_analysis.py
+  - Removed redundant files (app_analysis_lite.py, app_analysis_unified.py, app_analysis_bilingual.py)
+  - Cleaned up unnecessary requirements_lite.txt
+- [x] Unified app_analysis.py for Streamlit Cloud (2025-08-10)
   - Automatically detects environment (Cloud vs Local)
   - Uses TF-IDF + PCA for lightweight cloud deployment
   - Uses Sentence Transformers + UMAP for full local features
-  - Supports both Japanese and English interfaces
+  - Integrated bilingual support (Japanese/English)
 - [x] Japanese/English localization for all Streamlit apps (2025-08-10)
   - Created i18n.py module for app_streamlit.py
   - Created i18n_cloud.py for app_cloud.py
-  - Created i18n_analysis.py and app_analysis_bilingual.py
+  - Integrated i18n directly into app_analysis.py
 - [x] Pre-analysis Streamlit app for visual similarity analysis (2025-01-10)
 - [x] CLAUDE.md for AI assistant guidance (2025-01-10)
 - [x] Fixed Pydantic v2 and dependency compatibility (2025-01-10)
