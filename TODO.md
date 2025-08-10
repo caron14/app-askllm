@@ -107,6 +107,7 @@
 | Colab | ✅ Possible | Notebook adaptation needed |
 
 
+
 ## 📈 Project Statistics
 - Python files: 12
 - Test files: 4
