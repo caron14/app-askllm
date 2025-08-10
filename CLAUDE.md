@@ -67,8 +67,17 @@ uv run streamlit run app_analysis.py
 # Score single item
 uv run python -m hle_screener.cli score-one --text "Sample question"
 
+# Score with model quantization (reduces memory usage)
+uv run python -m hle_screener.cli score-one --text "Sample question" --quantization 4bit
+
 # Batch scoring with auto-resume
 uv run python -m hle_screener.cli score-batch --resume-from auto
+
+# Distributed batch scoring (parallel processing)
+uv run python -m hle_screener.cli score-distributed --limit 1000 --num-workers 4
+
+# Distributed scoring with Ray cluster
+uv run python -m hle_screener.cli score-distributed --use-ray --ray-address ray://head:10001
 
 # Check batch run status
 uv run python -m hle_screener.cli status
@@ -123,6 +132,57 @@ uv run python -m hle_screener.cli prep-umap
    - Auto-detects environment (Cloud vs Local)
    - TF-IDF fallback for Streamlit Cloud
    - No LLM judge required
+
+## Docker Deployment
+
+### Quick Start with Docker
+```bash
+# Build Docker images
+./scripts/docker_build.sh production
+
+# Start all services
+./scripts/docker_run.sh up
+
+# Run specific services
+./scripts/docker_run.sh hle-screener  # Main app on port 8501
+./scripts/docker_run.sh demo          # Demo app on port 8502
+./scripts/docker_run.sh analysis      # Analysis app on port 8503
+
+# Run CLI commands in container
+./scripts/docker_run.sh cli build-index
+./scripts/docker_run.sh cli score-batch
+
+# Distributed scoring with Ray
+./scripts/docker_run.sh distributed
+```
+
+## New Features (2025-08-10)
+
+### Model Quantization
+- Reduces memory usage by 50-75%
+- Supports 8-bit and 4-bit quantization via bitsandbytes
+- Use `--quantization` flag with CLI commands
+- Automatic fallback if GPU doesn't support quantization
+
+### Distributed Processing
+- Multiprocessing support for CPU parallelism
+- Ray integration for distributed GPU processing
+- Automatic worker optimization based on system resources
+- Use `score-distributed` command for parallel batch processing
+
+### Embedding Cache
+- File-based and Redis caching for embeddings
+- Avoids recomputation of previously seen texts
+- Significant speedup for repeated evaluations
+- Cache statistics available via API
+
+### Supported Embedding Models
+The system now supports 16+ embedding models:
+- BAAI: bge-m3, bge-large, bge-base, bge-small
+- Sentence Transformers: MiniLM, MPNet variants
+- Intfloat: E5 series (large, base, small)
+- Thenlper: GTE series
+- Multilingual models for Japanese support
 
 ## Architecture and Key Design Patterns
 
