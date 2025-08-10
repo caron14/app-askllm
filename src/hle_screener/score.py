@@ -62,7 +62,7 @@ def score_single_item(
         alpha=config.get("alpha", 0.8)
     )
     
-    model_config = {
+    model_conf = {
         **get_reproducibility_info(config),
         **judge.get_model_info()
     }
@@ -75,7 +75,7 @@ def score_single_item(
         askllm_score=askllm_score,
         quality_score=quality_score,
         askllm_response=askllm_response,
-        model_config=model_config
+        model_configuration=model_conf
     )
     
     logger.info(f"Scored {item_id}: quality={quality_score:.1f}, askllm={askllm_score:.1f}, sim={sim_score:.3f}")
