@@ -26,6 +26,12 @@ dependencies = [
     "accelerate>=0.24.0",
     "tenacity>=8.2.0",
     "llvmlite>=0.39.0",
+    "jupyterlab",
+    "huggingface-hub>=0.20.0",
+    "pyarrow>=14.0.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "ipywidgets>=8.0.0",
 ]
 
 [build-system]
