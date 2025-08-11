@@ -23,18 +23,39 @@ import sys
 # Detect if running on Streamlit Cloud first
 IS_STREAMLIT_CLOUD = os.environ.get('STREAMLIT_RUNTIME_ENV') == 'cloud'
 
-# Only try to import heavy dependencies if not on Streamlit Cloud
-HAS_TRANSFORMERS = False
-if not IS_STREAMLIT_CLOUD:
-    try:
-        from sentence_transformers import SentenceTransformer
-        import umap
-        HAS_TRANSFORMERS = True
-    except ImportError:
-        pass
+# Global variables for optional dependencies
+_sentence_transformer = None
+_umap = None
 
-# Update cloud detection to include missing dependencies
-IS_STREAMLIT_CLOUD = IS_STREAMLIT_CLOUD or not HAS_TRANSFORMERS
+def get_sentence_transformer():
+    """Lazy load SentenceTransformer only when needed."""
+    global _sentence_transformer
+    if IS_STREAMLIT_CLOUD:
+        return None
+    if _sentence_transformer is None:
+        try:
+            from sentence_transformers import SentenceTransformer
+            _sentence_transformer = SentenceTransformer
+        except ImportError:
+            pass
+    return _sentence_transformer
+
+def get_umap():
+    """Lazy load UMAP only when needed."""
+    global _umap
+    if IS_STREAMLIT_CLOUD:
+        return None
+    if _umap is None:
+        try:
+            import umap as umap_module
+            _umap = umap_module
+        except ImportError:
+            pass
+    return _umap
+
+# For backward compatibility
+SentenceTransformer = None
+umap = None
 
 # Initialize session state
 if 'embeddings_cache' not in st.session_state:
@@ -91,12 +112,18 @@ class SimpleTfidfEmbedder:
 @st.cache_resource
 def load_embedding_model(model_name: str = None):
     """Load embedding model based on environment"""
-    if IS_STREAMLIT_CLOUD or not HAS_TRANSFORMERS:
+    if IS_STREAMLIT_CLOUD:
         return SimpleTfidfEmbedder()
-    else:
-        if model_name is None:
-            model_name = "sentence-transformers/all-MiniLM-L6-v2"
-        return SentenceTransformer(model_name)
+    
+    # Try to load SentenceTransformer
+    ST = get_sentence_transformer()
+    if ST is None:
+        # Fallback to TF-IDF if not available
+        return SimpleTfidfEmbedder()
+    
+    if model_name is None:
+        model_name = "sentence-transformers/all-MiniLM-L6-v2"
+    return ST(model_name)
 
 @st.cache_data
 def generate_mock_hle_data(n_samples: int = 500, lang: str = 'ja') -> pd.DataFrame:
@@ -223,17 +250,20 @@ def compute_embeddings(texts: List[str], model) -> np.ndarray:
 @st.cache_data
 def compute_projection(embeddings: np.ndarray, method: str = "auto", **kwargs):
     """Compute 2D projection using PCA or UMAP"""
-    if method == "auto":
-        method = "pca" if (IS_STREAMLIT_CLOUD or not HAS_TRANSFORMERS) else "umap"
+    # Check if UMAP is available
+    umap_module = get_umap()
     
-    if method == "pca" or not HAS_TRANSFORMERS:
+    if method == "auto":
+        method = "pca" if (IS_STREAMLIT_CLOUD or umap_module is None) else "umap"
+    
+    if method == "pca" or umap_module is None:
         reducer = PCA(n_components=2, random_state=42)
         projection = reducer.fit_transform(embeddings)
         method = "pca"  # Force PCA if UMAP not available
     else:  # umap
         n_neighbors = kwargs.get('n_neighbors', 15)
         min_dist = kwargs.get('min_dist', 0.1)
-        reducer = umap.UMAP(
+        reducer = umap_module.UMAP(
             n_neighbors=n_neighbors,
             min_dist=min_dist,
             n_components=2,
@@ -413,7 +443,8 @@ def main():
         st.header("⚙️ " + ("Settings" if lang == 'en' else "設定"))
         
         # Show mode info
-        if IS_STREAMLIT_CLOUD or not HAS_TRANSFORMERS:
+        ST = get_sentence_transformer()
+        if IS_STREAMLIT_CLOUD or ST is None:
             mode_text = "Lightweight Mode (TF-IDF + PCA)" if lang == 'en' else "軽量モード (TF-IDF + PCA)"
             st.info(f"💡 {mode_text}")
             model_name = None
@@ -634,7 +665,7 @@ def main():
                     hle_embeddings = compute_embeddings(hle_texts, model)
                     
                     # Compute projection
-                    if IS_STREAMLIT_CLOUD or not HAS_TRANSFORMERS:
+                    if IS_STREAMLIT_CLOUD or get_umap() is None:
                         projection, reducer, method = compute_projection(hle_embeddings, method="pca")
                     else:
                         projection, reducer, method = compute_projection(
@@ -715,7 +746,7 @@ def main():
                     explained_var = st.session_state.projection_data['reducer'].explained_variance_ratio_
                     var_text = "Explained variance" if lang == 'en' else "説明分散"
                     st.write(f"- {var_text}: PC1={explained_var[0]:.2%}, PC2={explained_var[1]:.2%}")
-                elif method == "umap" and HAS_TRANSFORMERS:
+                elif method == "umap" and get_umap() is not None:
                     params_text = "UMAP parameters" if lang == 'en' else "UMAP パラメータ"
                     st.write(f"- {params_text}: n_neighbors={n_neighbors}, min_dist={min_dist}")
     
