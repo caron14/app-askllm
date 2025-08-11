@@ -30,13 +30,16 @@ _umap = None
 def get_sentence_transformer():
     """Lazy load SentenceTransformer only when needed."""
     global _sentence_transformer
+    # Never attempt import on Streamlit Cloud
     if IS_STREAMLIT_CLOUD:
         return None
     if _sentence_transformer is None:
         try:
             from sentence_transformers import SentenceTransformer
             _sentence_transformer = SentenceTransformer
-        except ImportError:
+        except (ImportError, AttributeError) as e:
+            # Log but don't raise - return None to use fallback
+            print(f"Could not import sentence_transformers: {e}")
             pass
     return _sentence_transformer
 
@@ -443,34 +446,41 @@ def main():
         st.header("⚙️ " + ("Settings" if lang == 'en' else "設定"))
         
         # Show mode info
-        ST = get_sentence_transformer()
-        if IS_STREAMLIT_CLOUD or ST is None:
+        if IS_STREAMLIT_CLOUD:
             mode_text = "Lightweight Mode (TF-IDF + PCA)" if lang == 'en' else "軽量モード (TF-IDF + PCA)"
             st.info(f"💡 {mode_text}")
             model_name = None
             n_neighbors = 15  # Default values for variables used later
             min_dist = 0.1
         else:
-            # Model selection for full mode
-            model_text = "Embedding Model" if lang == 'en' else "埋め込みモデル"
-            model_help = "Model to use for generating embedding vectors" if lang == 'en' else "埋め込みベクトル生成に使用するモデル"
-            model_name = st.selectbox(
-                model_text,
-                [
-                    "sentence-transformers/all-MiniLM-L6-v2",
-                    "sentence-transformers/all-mpnet-base-v2",
-                    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-                ],
-                help=model_help
-            )
-            
-            # UMAP parameters
-            umap_text = "UMAP Settings" if lang == 'en' else "UMAP設定"
-            st.subheader(umap_text)
-            n_neighbors_help = "Number of neighboring points" if lang == 'en' else "近傍点の数"
-            min_dist_help = "Minimum distance" if lang == 'en' else "最小距離"
-            n_neighbors = st.slider("n_neighbors", 5, 50, 15, help=n_neighbors_help)
-            min_dist = st.slider("min_dist", 0.0, 1.0, 0.1, 0.05, help=min_dist_help)
+            ST = get_sentence_transformer()
+            if ST is None:
+                mode_text = "Lightweight Mode (TF-IDF + PCA)" if lang == 'en' else "軽量モード (TF-IDF + PCA)"
+                st.info(f"💡 {mode_text}")
+                model_name = None
+                n_neighbors = 15  # Default values for variables used later
+                min_dist = 0.1
+            else:
+                # Model selection for full mode
+                model_text = "Embedding Model" if lang == 'en' else "埋め込みモデル"
+                model_help = "Model to use for generating embedding vectors" if lang == 'en' else "埋め込みベクトル生成に使用するモデル"
+                model_name = st.selectbox(
+                    model_text,
+                    [
+                        "sentence-transformers/all-MiniLM-L6-v2",
+                        "sentence-transformers/all-mpnet-base-v2",
+                        "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+                    ],
+                    help=model_help
+                )
+                
+                # UMAP parameters
+                umap_text = "UMAP Settings" if lang == 'en' else "UMAP設定"
+                st.subheader(umap_text)
+                n_neighbors_help = "Number of neighboring points" if lang == 'en' else "近傍点の数"
+                min_dist_help = "Minimum distance" if lang == 'en' else "最小距離"
+                n_neighbors = st.slider("n_neighbors", 5, 50, 15, help=n_neighbors_help)
+                min_dist = st.slider("min_dist", 0.0, 1.0, 0.1, 0.05, help=min_dist_help)
         
         # Data size
         data_size_text = "Data Size" if lang == 'en' else "データサイズ"
